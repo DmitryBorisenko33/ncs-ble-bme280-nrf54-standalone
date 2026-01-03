@@ -59,7 +59,7 @@ int main(void)
         
         // Write a test record immediately to verify storage works
         sensor_record_t test_record = {
-            .temp_x10 = 250,      // 25.0°C
+            .temp_x10 = 250,      // 25.0 degC
             .press_kpa = 1013,    // 1013 kPa
             .hum_pct = 50,        // 50%
             .battery_v_x10 = 30   // 3.0V
@@ -150,7 +150,7 @@ int main(void)
         record.battery_v_x10 = 30 + (seed % 12); // 3.0-4.1V
         
         // Log generated data
-        LOG_INF("Random data: T=%d.%d°C P=%d kPa H=%d%% Bat=%d.%dV",
+        LOG_INF("Random data: T=%d.%d degC P=%d kPa H=%d%% Bat=%d.%dV",
                 record.temp_x10 / 10, record.temp_x10 % 10,
                 record.press_kpa, record.hum_pct,
                 record.battery_v_x10 / 10, record.battery_v_x10 % 10);

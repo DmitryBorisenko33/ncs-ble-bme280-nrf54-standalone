@@ -6,7 +6,7 @@
 
 // Compact sensor record format (6 bytes)
 typedef struct __attribute__((packed)) {
-    int16_t temp_x10;        // Temperature in 0.1°C units (-3276.8..+3276.7°C)
+    int16_t temp_x10;        // Temperature in 0.1 degC units (-3276.8..+3276.7 degC)
     uint16_t press_kpa;      // Pressure in kPa (0..65535 kPa)
     uint8_t  hum_pct;        // Humidity in % (0..255%, saturates at 100%)
     uint8_t  battery_v_x10;  // Battery in 0.1V units (0..25.5V)
