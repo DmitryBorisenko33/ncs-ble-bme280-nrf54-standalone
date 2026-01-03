@@ -286,8 +286,8 @@ async def scan_and_connect():
     print("🔍 Поиск устройства BME280...")
     print(f"   Сервис: {DATA_SERVICE_UUID[:8]}...")
 
-    # Простое сканирование
-    devices = await BleakScanner.discover(timeout=10)
+    # Простое сканирование (увеличено время для повторного подключения)
+    devices = await BleakScanner.discover(timeout=15)
 
     target_address = None
     for device in devices:
@@ -421,6 +421,8 @@ async def download_data(client):
             
             elif packet_type == PACKET_TYPE_DATA:
                 if len(data) >= 5:
+                    # Parse seq from packet (bytes 1-2, big-endian)
+                    packet_seq = parse_uint16_be(data, 1)
                     count = data[3]
                     transfer_stats['data_packets'] += 1
                     transfer_stats['total_records'] += count
@@ -431,7 +433,7 @@ async def download_data(client):
                         record = parse_sensor_record(data, offset)
                         if record:
                             # Добавляем seq и timestamp
-                            record['seq'] = start_seq + i
+                            record['seq'] = packet_seq + i
                             # Генерируем timestamp на основе текущего времени и seq
                             # В реальном приложении timestamp должен приходить от устройства
                             current_time = int(datetime.now().timestamp() * 1000)

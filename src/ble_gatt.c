@@ -120,7 +120,21 @@ static int send_data_packet(uint32_t start_seq, uint8_t count, const sensor_reco
     packet_buffer[4] = 0;
     
     // data (up to 15 bytes - 2 records max)
-    memcpy(&packet_buffer[5], records, count * sizeof(sensor_record_t));
+    // Convert records to big-endian for network transmission
+    uint8_t *dst = &packet_buffer[5];
+    for (uint8_t i = 0; i < count; i++) {
+        // temp_x10 (int16_t, 2 bytes) - big-endian
+        // Cast to uint16_t preserves bit pattern for negative values
+        encode_u16_be(dst, (uint16_t)records[i].temp_x10);
+        dst += 2;
+        // press_kpa (uint16_t, 2 bytes) - big-endian
+        encode_u16_be(dst, records[i].press_kpa);
+        dst += 2;
+        // hum_pct (uint8_t, 1 byte) - no conversion needed
+        *dst++ = records[i].hum_pct;
+        // battery_v_x10 (uint8_t, 1 byte) - no conversion needed
+        *dst++ = records[i].battery_v_x10;
+    }
     
     // padding
     memset(&packet_buffer[5 + count * sizeof(sensor_record_t)], 0, 
