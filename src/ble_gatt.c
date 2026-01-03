@@ -186,22 +186,21 @@ static void transfer_worker(struct k_work *work)
         k_sleep(K_MSEC(50)); // Small delay between packets
     }
 
-    // Send data packets
-    sensor_record_t records[2];
+    // Send data packets (throttle to 1 record per packet to avoid buffer starvation)
+    sensor_record_t records[1];
     uint32_t records_sent = 0;
     /* start from transfer_start_seq (provided by application) */
     uint32_t start_seq = transfer_start_seq;
     
     while (transfer_current_index < transfer_total_count && records_sent < 100) {
-        // Read up to 2 records
+        // Read 1 record per packet to reduce HCI buffer pressure
         uint8_t count = 0;
-        for (uint8_t i = 0; i < 2 && (transfer_current_index + i) < transfer_total_count; i++) {
-            if (storage_read(start_seq + transfer_current_index + i, &records[i]) == 0) {
-                count++;
+        if ((transfer_current_index) < transfer_total_count) {
+            if (storage_read(start_seq + transfer_current_index, &records[0]) == 0) {
+                count = 1;
             } else {
                 /* If read fails, stop transfer and send END with what we have */
                 transfer_current_index = transfer_total_count;
-                break;
             }
         }
 
@@ -209,7 +208,7 @@ static void transfer_worker(struct k_work *work)
             send_data_packet(start_seq + transfer_current_index, count, records);
             transfer_current_index += count;
             records_sent += count;
-            k_sleep(K_MSEC(50)); // Small delay between packets
+            k_sleep(K_MSEC(120)); // Increase gap to keep TX buffers healthy
         } else {
             break;
         }
