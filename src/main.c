@@ -132,10 +132,10 @@ int main(void)
         counter++;
         
         // Generate random sensor data
-        // Temperature: 20-30°C (200-300 in x10 units)
+        // Temperature: 20-30 degC (200-300 in x10 units)
         // Use counter and some bit manipulation for pseudo-random values
         uint32_t seed = counter ^ (counter << 13) ^ (counter >> 17);
-        record.temp_x10 = 200 + (seed % 100);  // 20.0-29.9°C
+        record.temp_x10 = 200 + (seed % 100);  // 20.0-29.9 degC
         
         // Pressure: 980-1020 kPa (normal atmospheric pressure range)
         seed = seed ^ (seed << 15);
